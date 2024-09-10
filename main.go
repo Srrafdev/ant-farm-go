@@ -77,25 +77,50 @@ func (g *Graph) Print() {
 	print("\n")
 }
 
-func (g *Graph) DFS(start, k string) []*Vertex {
-	stack := []*Vertex{}
-	for _, vert := range g.vertices {
-		fmt.Println(vert.key)
-		for _, aj := range vert.adjacent {
-			if aj.key == k {
-				stack = append(stack, vert)
-				return stack
-			} else if !Visited(stack, aj) {
-				stack = append(stack, aj)
+/*func (v *Vertex) DFS(path *[][]*string, stack []*string, k string) {
+	stack = append(stack, &v.key)
+
+	if v.key == k {
+		newPath := make([]*string, len(stack))
+		copy(newPath, stack)
+		*path = append(*path, newPath)
+	} else {
+		for _, vert := range v.adjacent {
+			if !Visited(stack, vert) {
+				vert.DFS(path, stack, k)
 			}
 		}
 	}
-	return nil
+
+	stack = stack[:len(stack)-1] // Backtrack
+}*/
+
+func (v *Vertex) DFS(path [][]string, stack []string, k string) {
+	if len(stack) == 0 {
+		stack = append(stack, v.key)
+	}
+	if v.key == k {
+
+		path = append(path, stack)
+		fmt.Println(path)
+
+		stack = []string{}
+		return
+	} else {
+		for _, vert := range v.adjacent {
+			if v.key != k && !Visited(stack, vert) {
+				stack = append(stack, vert.key)
+				vert.DFS(path, stack, k)
+			}
+		}
+	}
+	// backtrack
+	stack = stack[:len(stack)-1]
 }
 
-func Visited(stack []*Vertex, visit *Vertex) bool {
+func Visited(stack []string, visit *Vertex) bool {
 	for _, val := range stack {
-		if visit.key == val.key {
+		if visit.key == val {
 			return true
 		}
 	}
@@ -104,30 +129,25 @@ func Visited(stack []*Vertex, visit *Vertex) bool {
 
 func main() {
 	test := &Graph{}
+	fileExample := "example.txt"
+	_, err := ReadFile(fileExample)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	for i := 0; i <= 7; i++ {
+	for i := 0; i <= 3; i++ {
 		test.AddVertex(strconv.Itoa(i))
 	}
-	test.AddVertex("h")
 
-	test.AddEdge("0", "6")
-	test.AddEdge("1", "3")
-	test.AddEdge("4", "3")
-	test.AddEdge("5", "2")
-	test.AddEdge("3", "5")
-	test.AddEdge("4", "2")
+	test.AddEdge("0", "2")
+	test.AddEdge("0", "3")
 	test.AddEdge("2", "1")
-	test.AddEdge("7", "6")
-	test.AddEdge("7", "2")
-	test.AddEdge("7", "4")
-	test.AddEdge("6", "4")
-	test.AddEdge("h", "4")
+	test.AddEdge("3", "1")
+	test.AddEdge("2", "3")
 
 	test.Print()
-
-	serch := test.DFS("1", "h")
-
-	for _, val := range serch {
-		fmt.Println("|", val.key, "|", val.adjacent, "|")
-	}
+	path := [][]string{}
+	stack := []string{}
+	test.vertices[0].DFS(path, stack, "1")
 }
