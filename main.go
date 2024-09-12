@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"strconv"
+
+	box "box/parseFile"
+	// box "box/parseFile"
 )
 
 type Graph struct {
@@ -78,7 +81,6 @@ func (g *Graph) Print() {
 }
 
 func (g *Graph) DFS(path *[][]string, stack *[]string, start *Vertex, end string) {
-	
 	*stack = append(*stack, start.key)
 
 	if start.key == end {
@@ -110,26 +112,30 @@ func Visited(stack []string, visit *Vertex) bool {
 
 func main() {
 	test := &Graph{}
-	fileExample := "example.txt"
-	_, err := ReadFile(fileExample)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 
-	for i := 0; i <= 3; i++ {
+	for i := 0; i <= 7; i++ {
 		test.AddVertex(strconv.Itoa(i))
 	}
 
-	test.AddEdge("0", "2")
-	test.AddEdge("0", "3")
+	test.AddEdge("0", "4")
+	test.AddEdge("0", "6")
+	test.AddEdge("1", "3")
+	test.AddEdge("4", "3")
+	test.AddEdge("5", "2")
+	test.AddEdge("4", "2")
 	test.AddEdge("2", "1")
-	test.AddEdge("3", "1")
-	test.AddEdge("2", "3")
+	test.AddEdge("7", "6")
+	test.AddEdge("7", "2")
+	test.AddEdge("7", "4")
+	test.AddEdge("6", "5")
 
-	test.Print()
+	//test.Print()
 	path := [][]string{}
 	stack := []string{}
-	test.DFS(&path, &stack, test.getVertex("0"), "1")
-	fmt.Println(path)
+	test.DFS(&path, &stack, test.getVertex("1"), "0")
+
+	// for _, v := range path {
+	// 	fmt.Println(v)
+	// }
+	box.ParseFile("example.txt")
 }
