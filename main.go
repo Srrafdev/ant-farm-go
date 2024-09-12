@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 
 	box "box/parseFile"
 	// box "box/parseFile"
@@ -111,31 +110,39 @@ func Visited(stack []string, visit *Vertex) bool {
 }
 
 func main() {
-	test := &Graph{}
+	graph := &Graph{}
 
-	for i := 0; i <= 7; i++ {
-		test.AddVertex(strconv.Itoa(i))
+	farms, err := box.ParseFile("example.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 
-	test.AddEdge("0", "4")
-	test.AddEdge("0", "6")
-	test.AddEdge("1", "3")
-	test.AddEdge("4", "3")
-	test.AddEdge("5", "2")
-	test.AddEdge("4", "2")
-	test.AddEdge("2", "1")
-	test.AddEdge("7", "6")
-	test.AddEdge("7", "2")
-	test.AddEdge("7", "4")
-	test.AddEdge("6", "5")
+	for _, val := range farms.Rooms {
+		graph.AddVertex(val)
+	}
+	for _, val := range farms.Links {
+		graph.AddEdge(string(val[0]), string(val[2]))
+	}
 
-	//test.Print()
+	//graph.Print()
+	start := graph.getVertex(farms.Start)
+	if start == nil {
+		fmt.Println("cant find vertex to (start)")
+		return
+	}
+	end := graph.getVertex(farms.End)
+	if end == nil {
+		fmt.Println("cant find vertex to (end)")
+		return
+	}
 	path := [][]string{}
 	stack := []string{}
-	test.DFS(&path, &stack, test.getVertex("1"), "0")
 
-	// for _, v := range path {
-	// 	fmt.Println(v)
-	// }
-	box.ParseFile("example.txt")
+	graph.DFS(&path, &stack, start, farms.End)
+	if len(path) == 0{
+		fmt.Println("not found end")
+		return
+	} 
+	fmt.Println(path)
 }
