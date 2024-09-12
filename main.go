@@ -77,46 +77,30 @@ func (g *Graph) Print() {
 	print("\n")
 }
 
-/*func (v *Vertex) DFS(path *[][]*string, stack []*string, k string) {
-	stack = append(stack, &v.key)
+func (g *Graph) DFS(path *[][]string, stack *[]string, start *Vertex,end string) {
+    if len(*stack) == 0 || (*stack)[len(*stack)-1] != start.key {
+        *stack = append(*stack, start.key)
+    }
 
-	if v.key == k {
-		newPath := make([]*string, len(stack))
-		copy(newPath, stack)
-		*path = append(*path, newPath)
-	} else {
-		for _, vert := range v.adjacent {
-			if !Visited(stack, vert) {
-				vert.DFS(path, stack, k)
-			}
-		}
-	}
+    if start.key == end {
 
-	stack = stack[:len(stack)-1] // Backtrack
-}*/
+        currentPath := []string{}
+		currentPath = append(currentPath, *stack...)
+        *path = append(*path, currentPath) 
 
-func (v *Vertex) DFS(path [][]string, stack []string, k string) {
-	if len(stack) == 0 {
-		stack = append(stack, v.key)
-	}
-	if v.key == k {
+    } else {
+        for _, vert := range start.adjacent {
+            if !Visited(*stack, vert) {
+                g.DFS(path, stack, vert, end)
+            }
+        }
+    }
 
-		path = append(path, stack)
-		fmt.Println(path)
-
-		stack = []string{}
-		return
-	} else {
-		for _, vert := range v.adjacent {
-			if v.key != k && !Visited(stack, vert) {
-				stack = append(stack, vert.key)
-				vert.DFS(path, stack, k)
-			}
-		}
-	}
-	// backtrack
-	stack = stack[:len(stack)-1]
+    // backtrack
+    *stack = (*stack)[:len(*stack)-1]
 }
+
+
 
 func Visited(stack []string, visit *Vertex) bool {
 	for _, val := range stack {
@@ -149,5 +133,6 @@ func main() {
 	test.Print()
 	path := [][]string{}
 	stack := []string{}
-	test.vertices[0].DFS(path, stack, "1")
+	test.DFS(&path, &stack, test.getVertex("0"), "1")
+	fmt.Println(path)
 }
