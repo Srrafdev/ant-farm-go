@@ -77,30 +77,27 @@ func (g *Graph) Print() {
 	print("\n")
 }
 
-func (g *Graph) DFS(path *[][]string, stack *[]string, start *Vertex,end string) {
-    if len(*stack) == 0 || (*stack)[len(*stack)-1] != start.key {
-        *stack = append(*stack, start.key)
-    }
+func (g *Graph) DFS(path *[][]string, stack *[]string, start *Vertex, end string) {
+	
+	*stack = append(*stack, start.key)
 
-    if start.key == end {
+	if start.key == end {
 
-        currentPath := []string{}
+		currentPath := []string{}
 		currentPath = append(currentPath, *stack...)
-        *path = append(*path, currentPath) 
+		*path = append(*path, currentPath)
 
-    } else {
-        for _, vert := range start.adjacent {
-            if !Visited(*stack, vert) {
-                g.DFS(path, stack, vert, end)
-            }
-        }
-    }
+	} else {
+		for _, vert := range start.adjacent {
+			if !Visited(*stack, vert) {
+				g.DFS(path, stack, vert, end)
+			}
+		}
+	}
 
-    // backtrack
-    *stack = (*stack)[:len(*stack)-1]
+	// backtrack
+	*stack = (*stack)[:len(*stack)-1]
 }
-
-
 
 func Visited(stack []string, visit *Vertex) bool {
 	for _, val := range stack {
