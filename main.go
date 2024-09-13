@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	box "box/parseFile"
 	// box "box/parseFile"
@@ -109,24 +110,44 @@ func Visited(stack []string, visit *Vertex) bool {
 	return false
 }
 
-
-
-//sort parhs
+// sort parhs
 func sortPaths(path [][]string) [][]string {
-    n := len(path)
-    for i := 0; i < n; i++ {
-        for j := 0; j < n-i-1; j++ {
-            if len(path[j+1]) < len(path[j]) {
-                path[j+1], path[j] = path[j], path[j+1]
-            }
-        }
-    }
-    return path
+	n := len(path)
+	for i := 0; i < n; i++ {
+		for j := 0; j < n-i-1; j++ {
+			if len(path[j+1]) < len(path[j]) {
+				path[j+1], path[j] = path[j], path[j+1]
+			}
+		}
+	}
+	return path
 }
 
-//tips  7
-func(g *Graph)greedy(paths [][]string, ants int){
-	paths = paths[1:len(paths)-1]
+//return special paths
+func (g *Graph) greedy(paths [][]string) [][]string {
+	var way string
+	var res [][]string
+	for _, a := range paths {
+		az := a[1 : len(a)-1]
+		a1 := strings.Join(az, " ")
+			if !is(a1, way) {
+				way += a1
+				res = append(res, a)
+		}
+	}
+
+	return res
+}
+
+func is(a, b string) bool {
+	for _, va := range a {
+		for _, vb := range b {
+			if (vb != ' ' || va != ' ') && vb == va {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func main() {
@@ -142,10 +163,12 @@ func main() {
 		graph.AddVertex(val)
 	}
 	for _, val := range farms.Links {
-		graph.AddEdge(string(val[0]), string(val[2]))
+		valsp := strings.Split(val, "-")
+		graph.AddEdge(valsp[0], valsp[1])
 	}
 
-	//graph.Print()
+	graph.Print()
+	println("****************************************")
 	start := graph.getVertex(farms.Start)
 	if start == nil {
 		fmt.Println("cant find vertex to (start)")
@@ -160,15 +183,18 @@ func main() {
 	stack := []string{}
 
 	graph.DFS(&paths, &stack, start, farms.End)
-	if len(paths) == 0{
+	if len(paths) == 0 {
 		fmt.Println("not found end")
 		return
-	} 
-	fmt.Println(paths)
-	fmt.Println("\n\n\n\n\n")
+	}
 	pathsort := sortPaths(paths)
-	for _, val := range pathsort{
 
+	for _, val := range pathsort {
+		fmt.Println(val)
+	}
+	way := graph.greedy(pathsort)
+	println("*************************************************")
+	for _, val := range way {
 		fmt.Println(val)
 	}
 }
