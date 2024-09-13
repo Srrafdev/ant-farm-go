@@ -109,6 +109,26 @@ func Visited(stack []string, visit *Vertex) bool {
 	return false
 }
 
+
+
+//sort parhs
+func sortPaths(path [][]string) [][]string {
+    n := len(path)
+    for i := 0; i < n; i++ {
+        for j := 0; j < n-i-1; j++ {
+            if len(path[j+1]) < len(path[j]) {
+                path[j+1], path[j] = path[j], path[j+1]
+            }
+        }
+    }
+    return path
+}
+
+//tips  7
+func(g *Graph)greedy(paths [][]string, ants int){
+	paths = paths[1:len(paths)-1]
+}
+
 func main() {
 	graph := &Graph{}
 
@@ -136,13 +156,19 @@ func main() {
 		fmt.Println("cant find vertex to (end)")
 		return
 	}
-	path := [][]string{}
+	paths := [][]string{}
 	stack := []string{}
 
-	graph.DFS(&path, &stack, start, farms.End)
-	if len(path) == 0{
+	graph.DFS(&paths, &stack, start, farms.End)
+	if len(paths) == 0{
 		fmt.Println("not found end")
 		return
 	} 
-	fmt.Println(path)
+	fmt.Println(paths)
+	fmt.Println("\n\n\n\n\n")
+	pathsort := sortPaths(paths)
+	for _, val := range pathsort{
+
+		fmt.Println(val)
+	}
 }
