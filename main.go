@@ -123,16 +123,16 @@ func sortPaths(path [][]string) [][]string {
 	return path
 }
 
-//return special paths
+// return special paths
 func (g *Graph) greedy(paths [][]string) [][]string {
 	var way string
 	var res [][]string
 	for _, a := range paths {
 		az := a[1 : len(a)-1]
 		a1 := strings.Join(az, " ")
-			if !is(a1, way) {
-				way += a1
-				res = append(res, a)
+		if !is(a1, way) {
+			way += a1
+			res = append(res, a)
 		}
 	}
 
@@ -187,14 +187,64 @@ func main() {
 		fmt.Println("not found end")
 		return
 	}
-	pathsort := sortPaths(paths)
+	paths = choosePaths(paths)
 
-	for _, val := range pathsort {
+	for _, val := range paths {
 		fmt.Println(val)
 	}
-	way := graph.greedy(pathsort)
-	println("*************************************************")
-	for _, val := range way {
-		fmt.Println(val)
+}
+
+func choosePaths(paths [][]string) [][]string {
+	rating := rate(paths)
+	SortByRate(paths, rating)
+	paths = choose(paths)
+	return paths
+}
+
+func choose(paths [][]string) [][]string {
+	filter := [][]string{}
+	m := make(map[string]bool)
+	for i := 0; i < len(paths); i++ {
+		bl := true
+		for j := 1; j < len(paths[i])-1; j++ {
+			if m[paths[i][j]] {
+				bl = false
+				break
+			}
+		}
+		if bl {
+			for j := 1; j < len(paths[i])-1; j++ {
+				m[paths[i][j]] = true
+			}
+			filter = append(filter, paths[i])
+		}
 	}
+	return filter
+}
+
+func SortByRate(paths [][]string, rating []int) {
+	for i := 0; i < len(paths); i++ {
+		for j := i + 1; j < len(paths); j++ {
+			if rating[i] > rating[j] {
+				rating[i], rating[j] = rating[j], rating[i]
+				paths[i], paths[j] = paths[j], paths[i]
+			}
+		}
+	}
+}
+
+func rate(paths [][]string) []int {
+	rating := make([]int, len(paths))
+	m := make(map[string]int)
+	for i := 0; i < len(paths); i++ {
+		for j := 0; j < len(paths[i]); j++ {
+			m[paths[i][j]]++
+		}
+	}
+	for i := 0; i < len(paths); i++ {
+		for j := 0; j < len(paths[i]); j++ {
+			rating[i] += m[paths[i][j]]
+		}
+	}
+	return rating
 }
