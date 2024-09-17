@@ -124,7 +124,7 @@ func sortPaths(path [][]string) [][]string {
 }
 
 // return special paths
-func (g *Graph) greedy(paths [][]string) [][]string {
+func greedy(paths [][]string) [][]string {
 	var way string
 	var res [][]string
 	for _, a := range paths {
@@ -155,7 +155,7 @@ func main() {
 
 	farms, err := box.ParseFile("example.txt")
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("ERROR: invalid data format: ", err)
 		return
 	}
 
@@ -169,34 +169,31 @@ func main() {
 
 	graph.Print()
 	println("****************************************")
+
 	start := graph.getVertex(farms.Start)
-	if start == nil {
-		fmt.Println("cant find vertex to (start)")
-		return
-	}
-	end := graph.getVertex(farms.End)
-	if end == nil {
-		fmt.Println("cant find vertex to (end)")
-		return
-	}
+
 	paths := [][]string{}
 	stack := []string{}
-
 	graph.DFS(&paths, &stack, start, farms.End)
 	if len(paths) == 0 {
-		fmt.Println("not found end")
+		fmt.Println("ERROR: invalid data format: not found end")
 		return
 	}
-	paths = choosePaths(paths)
 
-	for _, val := range paths {
-		fmt.Println(val)
+	paths = choosePaths(paths)
+	for _, v := range paths {
+		fmt.Println(v)
 	}
+	println("****************************************")
+
+	AntsWalk(sortPaths(paths), farms.NumberAnts)
 }
 
 func choosePaths(paths [][]string) [][]string {
 	rating := rate(paths)
+
 	SortByRate(paths, rating)
+
 	paths = choose(paths)
 	return paths
 }
@@ -204,9 +201,9 @@ func choosePaths(paths [][]string) [][]string {
 func choose(paths [][]string) [][]string {
 	filter := [][]string{}
 	m := make(map[string]bool)
-	for i := 0; i < len(paths); i++ {
+	for i, path := range paths {
 		bl := true
-		for j := 1; j < len(paths[i])-1; j++ {
+		for j := 1; j < len(path)-1; j++ {
 			if m[paths[i][j]] {
 				bl = false
 				break
@@ -234,17 +231,72 @@ func SortByRate(paths [][]string, rating []int) {
 }
 
 func rate(paths [][]string) []int {
+	repetRom := make(map[string]int)
+	for _, path := range paths {
+		for _, rom := range path {
+			repetRom[rom]++
+		}
+	}
+
 	rating := make([]int, len(paths))
-	m := make(map[string]int)
-	for i := 0; i < len(paths); i++ {
-		for j := 0; j < len(paths[i]); j++ {
-			m[paths[i][j]]++
+	for i, path := range paths {
+		for _, rom := range path {
+			rating[i] += repetRom[rom]
 		}
 	}
-	for i := 0; i < len(paths); i++ {
-		for j := 0; j < len(paths[i]); j++ {
-			rating[i] += m[paths[i][j]]
-		}
-	}
+
 	return rating
 }
+
+func AntsWalk(paths [][]string, ant int) {
+	var round int
+    var n int
+	for n < ant{ 
+
+	 	for _, val := range paths{
+			var n int
+			for i:= 1; i < len(val); i++{
+				if len(val[i])+n < len(val[i])+n{
+					fmt.Println(len(val[i])+n)
+				}
+			}
+		}
+	n++
+	round++
+		
+	print("\n")
+}
+
+}
+
+// Calculate the number of turns for each path if one ant was sent through it.
+// func distributeAnts(paths []string, numAnts int) map[string]int {
+// 	// Sort paths by length
+// 	sort.Slice(paths, func(i, j int) bool {
+// 		return len(paths[i]) < len(paths[j])
+// 	})
+
+// 	// Initialize distribution
+// 	distribution := make(map[string]int)
+// 	for _, path := range paths {
+// 		distribution[path] = 0
+// 	}
+
+// 	for i := 0; i < numAnts; i++ {
+// 		// Find the path that would result in the fewest turns if we add an ant to it
+// 		var bestPath []string
+// 		minTurns := float64(1<<63 - 1) // Initialize to max int64
+
+// 		for _, path := range paths {
+// 			turns := float64(len(path)+distribution[path]) / float64(distribution[path]+1)
+// 			if turns < minTurns {
+// 				minTurns = turns
+// 				bestPath = string
+// 			}
+// 		}
+
+// 		distribution[bestPath]++
+// 	}
+
+// 	return distribution
+// }

@@ -85,6 +85,9 @@ func ParseFile(filename string) (*AntsFarm, error) {
 	if antsFarm.End == "" {
 		return nil, fmt.Errorf("end room not found")
 	}
+	if antsFarm.NumberAnts <= 0{
+		return nil, fmt.Errorf("number ants not corect")
+	}
 
 	return antsFarm, nil
 }
