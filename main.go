@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	box "box/parseFile"
-	// box "box/parseFile"
 )
 
 type Graph struct {
@@ -186,7 +185,8 @@ func main() {
 	}
 	println("****************************************")
 
-	AntsWalk(sortPaths(paths), farms.NumberAnts)
+	// AntsWalk(sortPaths(paths), farms.NumberAnts)
+	move(paths, farms.NumberAnts)
 }
 
 func choosePaths(paths [][]string) [][]string {
@@ -248,55 +248,32 @@ func rate(paths [][]string) []int {
 	return rating
 }
 
-func AntsWalk(paths [][]string, ant int) {
-	var round int
-    var n int
-	for n < ant{ 
+func AntsWalk(paths [][]string, ants int) {
+	for {
 
-	 	for _, val := range paths{
-			var n int
-			for i:= 1; i < len(val); i++{
-				if len(val[i])+n < len(val[i])+n{
-					fmt.Println(len(val[i])+n)
-				}
+		if ants <= 0 {
+			break
+		}
+
+		for _, path := range paths {
+			fmt.Println(path)
+
+			for i := 1; i < len(path); i++ {
 			}
 		}
-	n++
-	round++
-		
-	print("\n")
+
+		print("\n")
+	}
 }
 
+func move(paths [][]string, ants int) {
+	for _, path := range paths {
+		var n int
+		for i := 1; i < len(path); i++ {
+			fmt.Printf("l%v-%v ", ants, path[i])
+			n++
+		}
+		ants--
+		fmt.Println(n)
+	}
 }
-
-// Calculate the number of turns for each path if one ant was sent through it.
-// func distributeAnts(paths []string, numAnts int) map[string]int {
-// 	// Sort paths by length
-// 	sort.Slice(paths, func(i, j int) bool {
-// 		return len(paths[i]) < len(paths[j])
-// 	})
-
-// 	// Initialize distribution
-// 	distribution := make(map[string]int)
-// 	for _, path := range paths {
-// 		distribution[path] = 0
-// 	}
-
-// 	for i := 0; i < numAnts; i++ {
-// 		// Find the path that would result in the fewest turns if we add an ant to it
-// 		var bestPath []string
-// 		minTurns := float64(1<<63 - 1) // Initialize to max int64
-
-// 		for _, path := range paths {
-// 			turns := float64(len(path)+distribution[path]) / float64(distribution[path]+1)
-// 			if turns < minTurns {
-// 				minTurns = turns
-// 				bestPath = string
-// 			}
-// 		}
-
-// 		distribution[bestPath]++
-// 	}
-
-// 	return distribution
-// }
