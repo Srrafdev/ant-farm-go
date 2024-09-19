@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	box "box/parseFile"
@@ -166,6 +167,8 @@ func main() {
 		graph.AddEdge(valsp[0], valsp[1])
 	}
 
+	// fmt.Sscanf(line,"%s %d%v%d\n", &room , &x ,&y)
+
 	graph.Print()
 	println("****************************************")
 
@@ -186,7 +189,13 @@ func main() {
 	println("****************************************")
 
 	// AntsWalk(sortPaths(paths), farms.NumberAnts)
-	move(paths, farms.NumberAnts)
+	// move(paths, farms.NumberAnts)
+	d := distributeDivision(paths, farms.NumberAnts)
+	all := 1
+	for i, path := range paths {
+		 walk(path, d[i], all)
+		all += d[i]
+	}
 }
 
 func choosePaths(paths [][]string) [][]string {
@@ -202,19 +211,19 @@ func choose(paths [][]string) [][]string {
 	filter := [][]string{}
 	m := make(map[string]bool)
 	for i, path := range paths {
-		bl := true
+
 		for j := 1; j < len(path)-1; j++ {
 			if m[paths[i][j]] {
-				bl = false
-				break
+				goto next // go to next index
 			}
 		}
-		if bl {
-			for j := 1; j < len(paths[i])-1; j++ {
-				m[paths[i][j]] = true
-			}
-			filter = append(filter, paths[i])
+
+		for j := 1; j < len(paths[i])-1; j++ {
+			m[paths[i][j]] = true
 		}
+		filter = append(filter, paths[i])
+
+	next:
 	}
 	return filter
 }
@@ -249,31 +258,64 @@ func rate(paths [][]string) []int {
 }
 
 func AntsWalk(paths [][]string, ants int) {
-	for {
-
-		if ants <= 0 {
-			break
-		}
-
-		for _, path := range paths {
-			fmt.Println(path)
-
-			for i := 1; i < len(path); i++ {
-			}
-		}
-
-		print("\n")
-	}
-}
-
-func move(paths [][]string, ants int) {
+	var varince int
+	// numb := make([]int, len(paths)-1)
 	for _, path := range paths {
-		var n int
-		for i := 1; i < len(path); i++ {
-			fmt.Printf("l%v-%v ", ants, path[i])
-			n++
+		if len(path)+ants < varince {
 		}
-		ants--
-		fmt.Println(n)
 	}
 }
+
+func distributeDivision(paths [][]string, total int) []int {
+	n := len(paths)
+	maxLen := 0
+
+	// Find the maximum path length
+	for _, path := range paths {
+		if n > maxLen {
+			maxLen = len(path)
+		}
+	}
+
+	result := make([]int, n)
+	remainingTotal := total
+
+	// Calculate the initial division for each path
+	for i, path := range paths {
+		difference := maxLen - len(path)
+		result[i] = difference
+		remainingTotal -= difference
+	}
+
+	// Distribute any remaining total
+	for i := 0; i < remainingTotal; i++ {
+		result[i%n]++
+	}
+
+	return result
+}
+
+func walk(path []string, n, all int) {
+	var walkAnt []string
+	var res [][]string
+	number := all
+	for number <= n+all-1 {
+		for _, room := range path[1:] {
+			walkAnt = append(walkAnt, "L"+strconv.Itoa(number)+"-"+room+" ")
+		}
+		res = append(res, walkAnt)
+		walkAnt = []string{}
+		number++
+	}
+
+	fmt.Println(res)
+}
+
+/*
+[start C0 C1 C2 C3 I4 I5 end]
+[start G0 G1 G2 G3 G4 D3 end]
+[start A0 A1 A2 end]
+[start B0 B1 E2 D2 F3 F4 end]
+
+ants 9
+*/
