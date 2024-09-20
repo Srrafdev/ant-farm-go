@@ -187,15 +187,15 @@ func main() {
 		fmt.Println(v)
 	}
 	println("****************************************")
-
+	move(paths, farms.NumberAnts)
 	// AntsWalk(sortPaths(paths), farms.NumberAnts)
 	// move(paths, farms.NumberAnts)
-	d := distributeDivision(paths, farms.NumberAnts)
-	all := 1
-	for i, path := range paths {
-		 walk(path, d[i], all)
-		all += d[i]
-	}
+	// d := distributeDivision(paths, farms.NumberAnts)
+	// all := 1
+	// for i, path := range paths {
+	// 	walk(path, d[i], all)
+	// 	all += d[i]
+	// }
 }
 
 func choosePaths(paths [][]string) [][]string {
@@ -311,11 +311,53 @@ func walk(path []string, n, all int) {
 	fmt.Println(res)
 }
 
-/*
-[start C0 C1 C2 C3 I4 I5 end]
-[start G0 G1 G2 G3 G4 D3 end]
-[start A0 A1 A2 end]
-[start B0 B1 E2 D2 F3 F4 end]
+func move(paths [][]string, numAnts int){ 
+	
+	positions := make([]int, numAnts)
+	started := 0
+	finished := 0
+	for i := range paths{
+		paths[i] = paths[i][1:] 
+	}
 
-ants 9
-*/
+	for finished < numAnts {
+		line := make([]string, numAnts)
+		
+		// Move ants that have already started
+		for i := 0; i < started; i++ {
+			pathIndex := i % len(paths)
+			if positions[i] < len(paths[pathIndex]) {
+				currentPos := paths[pathIndex][positions[i]]
+					line[i] = fmt.Sprintf("L%d-%s", i+1, currentPos)
+				
+				positions[i]++
+				if positions[i] == len(paths[pathIndex]) {
+					finished++
+				}
+			}
+		}
+
+		// Start a new ant if possible
+		if started < numAnts && (started == 0 || positions[started-1] > 1) {
+			pathIndex := started % len(paths)
+			started++
+			positions[started-1] = 1
+			line[started-1] = fmt.Sprintf("L%d-%s", started, paths[pathIndex][0])
+		}
+
+		output := strings.Join(filterEmptyStrings(line), " ")
+		if output != "" {
+			fmt.Println(output)
+		}
+	}
+}
+
+func filterEmptyStrings(slice []string) []string {
+	var result []string
+	for _, str := range slice {
+		if str != "" {
+			result = append(result, str)
+		}
+	}
+	return result
+}
