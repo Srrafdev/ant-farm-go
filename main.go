@@ -181,14 +181,16 @@ func main() {
 		fmt.Println("ERROR: invalid data format: not found end")
 		return
 	}
+	for _, v := range paths{
 
+		fmt.Println(v)
+	}
 	paths = choosePaths(paths)
 	for _, v := range paths {
 		fmt.Println(v)
 	}
 	println("****************************************")
-	move(paths, farms.NumberAnts)
-	// AntsWalk(sortPaths(paths), farms.NumberAnts)
+	//move(paths, farms.NumberAnts)
 	// move(paths, farms.NumberAnts)
 	// d := distributeDivision(paths, farms.NumberAnts)
 	// all := 1
@@ -196,7 +198,17 @@ func main() {
 	// 	walk(path, d[i], all)
 	// 	all += d[i]
 	// }
+
+	
 }
+
+func antherAlgo(paths [][]string, numbAnts int){
+	n := 1
+	for i, path := range paths{
+		if (len(path)-1) + n > paths[i]
+	}
+}
+
 
 func choosePaths(paths [][]string) [][]string {
 	rating := rate(paths)
@@ -257,15 +269,6 @@ func rate(paths [][]string) []int {
 	return rating
 }
 
-func AntsWalk(paths [][]string, ants int) {
-	var varince int
-	// numb := make([]int, len(paths)-1)
-	for _, path := range paths {
-		if len(path)+ants < varince {
-		}
-	}
-}
-
 func distributeDivision(paths [][]string, total int) []int {
 	n := len(paths)
 	maxLen := 0
@@ -311,25 +314,24 @@ func walk(path []string, n, all int) {
 	fmt.Println(res)
 }
 
-func move(paths [][]string, numAnts int){ 
-	
+func move(paths [][]string, numAnts int) {
 	positions := make([]int, numAnts)
 	started := 0
 	finished := 0
-	for i := range paths{
-		paths[i] = paths[i][1:] 
+	for i := range paths {
+		paths[i] = paths[i][1:]
 	}
 
 	for finished < numAnts {
 		line := make([]string, numAnts)
-		
+
 		// Move ants that have already started
 		for i := 0; i < started; i++ {
 			pathIndex := i % len(paths)
 			if positions[i] < len(paths[pathIndex]) {
 				currentPos := paths[pathIndex][positions[i]]
-					line[i] = fmt.Sprintf("L%d-%s", i+1, currentPos)
-				
+				line[i] = fmt.Sprintf("L%d-%s", i+1, currentPos)
+
 				positions[i]++
 				if positions[i] == len(paths[pathIndex]) {
 					finished++
