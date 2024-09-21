@@ -181,34 +181,135 @@ func main() {
 		fmt.Println("ERROR: invalid data format: not found end")
 		return
 	}
-	for _, v := range paths{
-
-		fmt.Println(v)
-	}
-	paths = choosePaths(paths)
+	
+	paths = sortPaths(paths)
 	for _, v := range paths {
 		fmt.Println(v)
 	}
 	println("****************************************")
-	//move(paths, farms.NumberAnts)
-	// move(paths, farms.NumberAnts)
-	// d := distributeDivision(paths, farms.NumberAnts)
-	// all := 1
-	// for i, path := range paths {
-	// 	walk(path, d[i], all)
-	// 	all += d[i]
-	// }
-
-	
+	mov := moveAnts(paths, farms.NumberAnts)
+	printAntMovements(mov)
 }
 
-func antherAlgo(paths [][]string, numbAnts int){
-	n := 1
-	for i, path := range paths{
-		if (len(path)-1) + n > paths[i]
+
+type Ant struct {
+	ID           int
+	CurrentRoom  string
+	Path         []string
+	PathPosition int
+}
+
+func moveAnts(paths [][]string, antCount int) []string {
+	var movements []string
+	ants := make([]*Ant, antCount)
+	for i := range ants {
+		ants[i] = &Ant{ID: i + 1, CurrentRoom: "start", PathPosition: -1}
+	}
+
+	allAntsFinished := false
+
+	for !allAntsFinished {
+		turnMoves := []string{}
+		allAntsFinished = true
+
+		for _, ant := range ants {
+			if ant.CurrentRoom == "end" {
+				continue
+			}
+
+			allAntsFinished = false
+
+			if ant.PathPosition == -1 {
+				// Assign a path to the ant
+				ant.Path = choosePath(paths, ants)
+				if ant.Path == nil {
+					continue // No suitable path found, skip this ant
+				}
+				ant.PathPosition = 0
+			}
+
+			// Move ant to next room
+			ant.PathPosition++
+			if ant.PathPosition >= len(ant.Path) {
+				ant.CurrentRoom = "end"
+			} else {
+				nextRoom := ant.Path[ant.PathPosition]
+				
+				// Check if the next room is occupied
+				if isRoomOccupied(ants, nextRoom) && nextRoom != "end" {
+					ant.PathPosition-- // Stay in current room
+					continue
+				}
+
+				ant.CurrentRoom = nextRoom
+				turnMoves = append(turnMoves, fmt.Sprintf("L%d-%s", ant.ID, nextRoom))
+			}
+		}
+
+		if len(turnMoves) > 0 {
+			movements = append(movements, strings.Join(turnMoves, " "))
+		}
+	}
+
+	return movements
+}
+
+func choosePath(paths [][]string, ants []*Ant) []string {
+	// Simple strategy: choose the shortest available path
+	for _, path := range paths {
+		if isPathAvailable(path, ants) {
+			return path
+		}
+	}
+	return nil
+}
+
+func isPathAvailable(path []string, ants []*Ant) bool {
+	for _, room := range path[1 : len(path)-1] { // Exclude start and end
+		if isRoomOccupied(ants, room) {
+			return false
+		}
+	}
+	return true
+}
+
+func isRoomOccupied(ants []*Ant, room string) bool {
+	for _, ant := range ants {
+		if ant.CurrentRoom == room {
+			return true
+		}
+	}
+	return false
+}
+
+func printAntMovements(movements []string) {
+	for _, move := range movements {
+		fmt.Println(move)
 	}
 }
 
+
+func antherAlgo(paths [][]string, numbAnts int) {
+	n := 1
+	for n <= numbAnts {
+		for i, path := range paths {
+			if i+1 < len(paths) && nambTips(path, n) < nambTips(paths[i+1], 1) {
+				fmt.Println(path)
+				println(n)
+				continue
+			}else{
+				fmt.Println("**", path)
+				println(n)
+
+			}
+		}
+		n++
+	}
+}
+
+func nambTips(path []string, ants int) int {
+	return (len(path) - 1) + ants
+}
 
 func choosePaths(paths [][]string) [][]string {
 	rating := rate(paths)
