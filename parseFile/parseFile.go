@@ -41,7 +41,7 @@ func (AF *AntsFarm) GetData(scanner *bufio.Scanner) error {
 			AF.Rooms = append(AF.Rooms, parts[0])
 		case strings.Contains(line, "-"):
 			AF.Links = append(AF.Links, line)
-		case !strings.HasPrefix(line, "#") && strings.Contains(line, " "):
+		case !strings.HasPrefix(line, "#") && strings.Contains(line, " ") || !strings.HasPrefix(line, "#"):
 			parts := strings.Fields(line)
 			if len(parts) < 1 {
 				return fmt.Errorf("invalid room format")

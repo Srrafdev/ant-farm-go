@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"strings"
 
 	box "box/parseFile"
@@ -185,50 +184,82 @@ func main() {
 		fmt.Println(v)
 	}
 	println("****************************************")
-	pp := bestPaths(paths[2:])
+	// pp := beastPaths(paths[2:])
 
-	cc := calculateRounds(pp,farms.NumberAnts)
-	fmt.Println(cc)
+	// roud, moves := calcRoundsAndMoves(pp, farms.NumberAnts)
+	// fmt.Println(roud,"\n",moves)
+	pp := chouse(paths, farms.NumberAnts)
+	fmt.Println(pp)
+	println("****************************************")
+	//walkAnts(pp, farms.Start, farms.NumberAnts)
+	move(paths,farms.NumberAnts)
 }
 
-func calculateRounds(paths [][]string, ants int) int {
-	// Calculate the length of each path (excluding the start and end)
-	pathLengths := make([]int, len(paths))
+func chouse(paths [][]string, ants int) [][]string {
+	pat := beastPaths(paths[0:])
+	beastRound, beastMove := calcRoundsAndMoves(pat, ants)
+
+	beastPath := pat
+	for i := 0; i < len(paths)-1; i++ {
+		pat := beastPaths(paths[i:])
+		round, moves := calcRoundsAndMoves(pat, ants)
+		if round < beastRound {
+			beastRound = round
+			// get beast paths
+			beastPath = pat
+		} else if round == beastRound {
+			if moves < beastMove {
+				beastMove = moves
+				// get beast paths
+				beastPath = pat
+			}
+		}
+	}
+	fmt.Println(beastRound, beastMove)
+	return beastPath
+}
+
+func calcRoundsAndMoves(paths [][]string, ants int) (int, int) {
+	if len(paths) == 1 {
+		return len(paths[0]) + ants, len(paths[0]) + ants
+	}
+	pathsLen := make([]int, len(paths))
 	for i, path := range paths {
-		// Path length is the number of rooms excluding 'start' and 'end'
-		pathLengths[i] = len(path) - 2
+		pathsLen[i] = len(path) - 1
 	}
 
-	// Create a slice to store the number of ants assigned to each path
-	antsPerPath := make([]int, len(pathLengths))
+	numbAntForPath := make([]int, len(pathsLen))
 
-	// Distribute ants across paths in a round-robin fashion
 	remainingAnts := ants
 	for remainingAnts > 0 {
-		for i := range pathLengths {
+		for i := range pathsLen {
 			if remainingAnts == 0 {
 				break
 			}
-			antsPerPath[i]++
+			numbAntForPath[i]++
 			remainingAnts--
 		}
 	}
 
-	// Calculate the total rounds required for all ants to reach the end
-	totalRounds := 0
-	for i, pathLength := range pathLengths {
-		if antsPerPath[i] == 0 {
+	rounds := 0
+	moves := 0
+
+	for i, pathLen := range pathsLen {
+		if numbAntForPath[i] == 0 {
 			continue
 		}
-		// The number of rounds it takes for the last ant on this path to reach the end
-		roundsForPath := pathLength + (antsPerPath[i] - 1)
-		totalRounds = int(math.Max(float64(totalRounds), float64(roundsForPath)))
+		roundsForPath := pathLen + (numbAntForPath[i] - 1)
+		// rounds = int(math.Max(float64(rounds), float64(roundsForPath)))
+		if roundsForPath > rounds {
+			rounds = roundsForPath
+		}
+		moves += pathLen * numbAntForPath[i]
 	}
 
-	return totalRounds
+	return rounds, moves
 }
 
-func bestPaths(paths [][]string) [][]string {
+func beastPaths(paths [][]string) [][]string {
 	var filter [][]string
 	for _, path := range paths {
 		if isDeferentRom(path, filter) {
@@ -265,6 +296,65 @@ func newAnt(id int, room string, canmove bool) *Ant {
 	}
 }
 
+func walkAnts(paths [][]string, start string, numbAnt int) {
+	var ants []Ant
+	for i := 1; i <= numbAnt; i++ {
+		ants = append(ants, *newAnt(i, start, true))
+	}
+
+	for _, path := range paths {
+		for j := range ants {
+			for i := 1; i < len(path); i++ {
+				if ants[j].canMove {
+					ants[j].room = path[i]
+					ants[j].canMove = false
+				}
+				fmt.Printf("L%v-%v ", ants[j].id, ants[j].room)
+			}
+		}
+		println()
+	}
+}
+
+func move(paths [][]string, numAnts int) {
+	positions := make([]int, numAnts)
+	started := 0
+	finished := 0
+	for i := range paths {
+		paths[i] = paths[i][1:]
+	}
+
+	for finished < numAnts {
+		line := make([]string, numAnts)
+
+		// Move ants that have already started
+		for i := 0; i < started; i++ {
+			pathIndex := i % len(paths)
+			if positions[i] < len(paths[pathIndex]) {
+				currentPos := paths[pathIndex][positions[i]]
+				line[i] = fmt.Sprintf("L%d-%s", i+1, currentPos)
+
+				positions[i]++
+				if positions[i] == len(paths[pathIndex]) {
+					finished++
+				}
+			}
+		}
+
+		// Start a new ant if possible
+		if started < numAnts && (started == 0 || positions[started-1] > 1) {
+			pathIndex := started % len(paths)
+			started++
+			positions[started-1] = 1
+			line[started-1] = fmt.Sprintf("L%d-%s", started, paths[pathIndex][0])
+		}
+
+		output := strings.Join(filterEmptyStrings(line), " ")
+		if output != "" {
+			fmt.Println(output)
+		}
+	}
+}
 // func antherAlgo(paths [][]string, numbAnts int) {
 // 	n := 1
 // 	way := make(map[int][]string)
@@ -429,12 +519,12 @@ func newAnt(id int, room string, canmove bool) *Ant {
 // 	}
 // }
 
-// func filterEmptyStrings(slice []string) []string {
-// 	var result []string
-// 	for _, str := range slice {
-// 		if str != "" {
-// 			result = append(result, str)
-// 		}
-// 	}
-// 	return result
-// }
+func filterEmptyStrings(slice []string) []string {
+	var result []string
+	for _, str := range slice {
+		if str != "" {
+			result = append(result, str)
+		}
+	}
+	return result
+}
