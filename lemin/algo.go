@@ -45,10 +45,13 @@ func calcRoundsAndMoves(paths [][]string, ants int) (int, int) {
 			if remainingAnts == 0 {
 				break
 			}
-			// if i+1 < len(pathsLen) && numbAntForPath[i] + i < pathsLen[i+1]{
+			if i+1 < len(pathsLen) && numbAntForPath[i] + i < pathsLen[i+1]{
 			numbAntForPath[i]++
 			remainingAnts--
-			//}
+			}else if i+1 < len(pathsLen){
+				numbAntForPath[i+1]++
+				remainingAnts--
+			}
 
 		}
 	}
@@ -65,6 +68,7 @@ func calcRoundsAndMoves(paths [][]string, ants int) (int, int) {
 		if roundsForPath > rounds {
 			rounds = roundsForPath
 		}
+		// calcul number of maves
 		moves += pathLen * numbAntForPath[i]
 	}
 

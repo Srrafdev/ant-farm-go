@@ -8,8 +8,6 @@ import (
 	box "box/parseFile"
 )
 
-
-
 func main() {
 	graph := &lemin.Graph{}
 
@@ -53,9 +51,9 @@ func main() {
 	}
 	println("****************************************")
 
-	pp := lemin.Chouse(paths, farms.NumberAnts)
-	fmt.Println(pp)
+	bestPath := lemin.Chouse(paths, farms.NumberAnts)
+	fmt.Println(bestPath)
 	println("****************************************")
-	lemin.PrintAntMovements(pp, farms.NumberAnts, farms.Start, farms.End)
+	lemin.PrintAntMovements(bestPath, farms.NumberAnts, farms.Start, farms.End)
 }
 
