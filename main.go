@@ -122,22 +122,6 @@ func sortPaths(path [][]string) [][]string {
 	return path
 }
 
-// return special paths
-func greedy(paths [][]string) [][]string {
-	var way string
-	var res [][]string
-	for _, a := range paths {
-		az := a[1 : len(a)-1]
-		a1 := strings.Join(az, " ")
-		if !is(a1, way) {
-			way += a1
-			res = append(res, a)
-		}
-	}
-
-	return res
-}
-
 func is(a, b string) bool {
 	for _, va := range a {
 		for _, vb := range b {
@@ -184,20 +168,17 @@ func main() {
 		fmt.Println(v)
 	}
 	println("****************************************")
-	// pp := beastPaths(paths[2:])
 
-	// roud, moves := calcRoundsAndMoves(pp, farms.NumberAnts)
-	// fmt.Println(roud,"\n",moves)
 	pp := chouse(paths, farms.NumberAnts)
 	fmt.Println(pp)
 	println("****************************************")
-	//walkAnts(pp, farms.Start, farms.NumberAnts)
-	move(paths,farms.NumberAnts)
+	printAntMovements(pp, farms.NumberAnts, farms.Start, farms.End)
 }
 
 func chouse(paths [][]string, ants int) [][]string {
 	pat := beastPaths(paths[0:])
-	beastRound, beastMove := calcRoundsAndMoves(pat, ants)
+	beastRound, _ := calcRoundsAndMoves(pat, ants)
+	beastMove := 0
 
 	beastPath := pat
 	for i := 0; i < len(paths)-1; i++ {
@@ -208,12 +189,13 @@ func chouse(paths [][]string, ants int) [][]string {
 			// get beast paths
 			beastPath = pat
 		} else if round == beastRound {
-			if moves < beastMove {
+			if moves < beastMove || beastMove == 0 {
 				beastMove = moves
 				// get beast paths
 				beastPath = pat
 			}
 		}
+		// fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$",pat,round , moves)
 	}
 	fmt.Println(beastRound, beastMove)
 	return beastPath
@@ -231,13 +213,17 @@ func calcRoundsAndMoves(paths [][]string, ants int) (int, int) {
 	numbAntForPath := make([]int, len(pathsLen))
 
 	remainingAnts := ants
+
 	for remainingAnts > 0 {
 		for i := range pathsLen {
 			if remainingAnts == 0 {
 				break
 			}
+			// if i+1 < len(pathsLen) && numbAntForPath[i] + i < pathsLen[i+1]{
 			numbAntForPath[i]++
 			remainingAnts--
+			//}
+
 		}
 	}
 
@@ -255,6 +241,9 @@ func calcRoundsAndMoves(paths [][]string, ants int) (int, int) {
 		}
 		moves += pathLen * numbAntForPath[i]
 	}
+	fmt.Println(paths)
+	fmt.Println("***", rounds, moves)
+	fmt.Println("***", numbAntForPath)
 
 	return rounds, moves
 }
@@ -283,248 +272,52 @@ func isDeferentRom(paths []string, filter [][]string) bool {
 }
 
 type Ant struct {
-	id      int
-	room    string
-	canMove bool
+	ID        int
+	PathIndex int
+	Position  int
 }
 
-func newAnt(id int, room string, canmove bool) *Ant {
-	return &Ant{
-		id:      id,
-		room:    room,
-		canMove: canmove,
-	}
-}
-
-func walkAnts(paths [][]string, start string, numbAnt int) {
-	var ants []Ant
-	for i := 1; i <= numbAnt; i++ {
-		ants = append(ants, *newAnt(i, start, true))
+func printAntMovements(paths [][]string, numAnts int, start, end string) {
+	ants := make([]*Ant, numAnts)
+	for i := 0; i < numAnts; i++ {
+		ants[i] = &Ant{ID: i + 1, PathIndex: i % len(paths), Position: -1}
 	}
 
-	for _, path := range paths {
-		for j := range ants {
-			for i := 1; i < len(path); i++ {
-				if ants[j].canMove {
-					ants[j].room = path[i]
-					ants[j].canMove = false
-				}
-				fmt.Printf("L%v-%v ", ants[j].id, ants[j].room)
+	for !allAntsFinished(paths, ants, end) {
+		moves := []string{}
+		occupied := make(map[string]bool)
+
+		for _, ant := range ants {
+			if ant.Position == len(paths[ant.PathIndex])-1 {
+				continue
+			}
+
+			nextRoom := paths[ant.PathIndex][ant.Position+1]
+			if nextRoom != end && occupied[nextRoom] {
+				continue
+			}
+
+			ant.Position++
+			currentRoom := paths[ant.PathIndex][ant.Position]
+			if currentRoom != start && currentRoom != end {
+				occupied[currentRoom] = true
+			}
+			if currentRoom != start {
+				moves = append(moves, fmt.Sprintf("L%d-%s", ant.ID, currentRoom))
 			}
 		}
-		println()
+		if len(moves) > 0 {
+			fmt.Println(strings.Join(moves, " "))
+		}
+
 	}
 }
 
-func move(paths [][]string, numAnts int) {
-	positions := make([]int, numAnts)
-	started := 0
-	finished := 0
-	for i := range paths {
-		paths[i] = paths[i][1:]
-	}
-
-	for finished < numAnts {
-		line := make([]string, numAnts)
-
-		// Move ants that have already started
-		for i := 0; i < started; i++ {
-			pathIndex := i % len(paths)
-			if positions[i] < len(paths[pathIndex]) {
-				currentPos := paths[pathIndex][positions[i]]
-				line[i] = fmt.Sprintf("L%d-%s", i+1, currentPos)
-
-				positions[i]++
-				if positions[i] == len(paths[pathIndex]) {
-					finished++
-				}
-			}
-		}
-
-		// Start a new ant if possible
-		if started < numAnts && (started == 0 || positions[started-1] > 1) {
-			pathIndex := started % len(paths)
-			started++
-			positions[started-1] = 1
-			line[started-1] = fmt.Sprintf("L%d-%s", started, paths[pathIndex][0])
-		}
-
-		output := strings.Join(filterEmptyStrings(line), " ")
-		if output != "" {
-			fmt.Println(output)
+func allAntsFinished(paths [][]string, ants []*Ant, end string) bool {
+	for _, ant := range ants {
+		if ant.Position == -1 || paths[ant.PathIndex][ant.Position] != end {
+			return false
 		}
 	}
-}
-// func antherAlgo(paths [][]string, numbAnts int) {
-// 	n := 1
-// 	way := make(map[int][]string)
-// 	for n <= numbAnts {
-// 		for i, path := range paths {
-// 			if i+1 < len(paths) && nambTips(path, n) > nambTips(paths[i+1], 1) {
-// 				delete(way, n)
-// 			} else {
-// 				way[n] = path
-// 			}
-// 		}
-// 		n++
-// 	}
-// 	fmt.Println(way)
-// }
-
-// func nambTips(path []string, ants int) int {
-// 	return (len(path) - 1) + ants
-// }
-
-// func choosePaths(paths [][]string) [][]string {
-// 	rating := rate(paths)
-
-// 	SortByRate(paths, rating)
-
-// 	paths = choose(paths)
-// 	return paths
-// }
-
-// func choose(paths [][]string) [][]string {
-// 	filter := [][]string{}
-// 	m := make(map[string]bool)
-// 	for i, path := range paths {
-
-// 		for j := 1; j < len(path)-1; j++ {
-// 			if m[paths[i][j]] {
-// 				goto next // go to next index
-// 			}
-// 		}
-
-// 		for j := 1; j < len(paths[i])-1; j++ {
-// 			m[paths[i][j]] = true
-// 		}
-// 		filter = append(filter, paths[i])
-
-// 	next:
-// 	}
-// 	return filter
-// }
-
-// func SortByRate(paths [][]string, rating []int) {
-// 	for i := 0; i < len(paths); i++ {
-// 		for j := i + 1; j < len(paths); j++ {
-// 			if rating[i] > rating[j] {
-// 				rating[i], rating[j] = rating[j], rating[i]
-// 				paths[i], paths[j] = paths[j], paths[i]
-// 			}
-// 		}
-// 	}
-// }
-
-// func rate(paths [][]string) []int {
-// 	repetRom := make(map[string]int)
-// 	for _, path := range paths {
-// 		for _, rom := range path {
-// 			repetRom[rom]++
-// 		}
-// 	}
-
-// 	rating := make([]int, len(paths))
-// 	for i, path := range paths {
-// 		for _, rom := range path {
-// 			rating[i] += repetRom[rom]
-// 		}
-// 	}
-
-// 	return rating
-// }
-
-// func distributeDivision(paths [][]string, total int) []int {
-// 	n := len(paths)
-// 	maxLen := 0
-
-// 	// Find the maximum path length
-// 	for _, path := range paths {
-// 		if n > maxLen {
-// 			maxLen = len(path)
-// 		}
-// 	}
-
-// 	result := make([]int, n)
-// 	remainingTotal := total
-
-// 	// Calculate the initial division for each path
-// 	for i, path := range paths {
-// 		difference := maxLen - len(path)
-// 		result[i] = difference
-// 		remainingTotal -= difference
-// 	}
-
-// 	// Distribute any remaining total
-// 	for i := 0; i < remainingTotal; i++ {
-// 		result[i%n]++
-// 	}
-
-// 	return result
-// }
-
-// func walk(path []string, n, all int) {
-// 	var walkAnt []string
-// 	var res [][]string
-// 	number := all
-// 	for number <= n+all-1 {
-// 		for _, room := range path[1:] {
-// 			walkAnt = append(walkAnt, "L"+strconv.Itoa(number)+"-"+room+" ")
-// 		}
-// 		res = append(res, walkAnt)
-// 		walkAnt = []string{}
-// 		number++
-// 	}
-
-// 	fmt.Println(res)
-// }
-
-// func move(paths [][]string, numAnts int) {
-// 	positions := make([]int, numAnts)
-// 	started := 0
-// 	finished := 0
-// 	for i := range paths {
-// 		paths[i] = paths[i][1:]
-// 	}
-
-// 	for finished < numAnts {
-// 		line := make([]string, numAnts)
-
-// 		// Move ants that have already started
-// 		for i := 0; i < started; i++ {
-// 			pathIndex := i % len(paths)
-// 			if positions[i] < len(paths[pathIndex]) {
-// 				currentPos := paths[pathIndex][positions[i]]
-// 				line[i] = fmt.Sprintf("L%d-%s", i+1, currentPos)
-
-// 				positions[i]++
-// 				if positions[i] == len(paths[pathIndex]) {
-// 					finished++
-// 				}
-// 			}
-// 		}
-
-// 		// Start a new ant if possible
-// 		if started < numAnts && (started == 0 || positions[started-1] > 1) {
-// 			pathIndex := started % len(paths)
-// 			started++
-// 			positions[started-1] = 1
-// 			line[started-1] = fmt.Sprintf("L%d-%s", started, paths[pathIndex][0])
-// 		}
-
-// 		output := strings.Join(filterEmptyStrings(line), " ")
-// 		if output != "" {
-// 			fmt.Println(output)
-// 		}
-// 	}
-// }
-
-func filterEmptyStrings(slice []string) []string {
-	var result []string
-	for _, str := range slice {
-		if str != "" {
-			result = append(result, str)
-		}
-	}
-	return result
+	return true
 }
