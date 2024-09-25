@@ -30,13 +30,13 @@ func (g *Graph) AddEdge(from, to string)error {
 	toVertex := g.GetVertex(to)
 	// check error
 	if fromVertex == nil || toVertex == nil {
-		err := fmt.Errorf("invalid edge (%v--->%v) ", from, to)
+		err := fmt.Errorf("invalid edge (%v<--->%v) ", from, to)
 		return err
 	} else if contains(fromVertex.adjacent, to) {
-		err := fmt.Errorf("existing edge (%v--->%v) ", from, to)
+		err := fmt.Errorf("existing edge (%v<--->%v) ", from, to)
 		return err
 	} else if fromVertex.key == toVertex.key {
-		err := fmt.Errorf("same vertex (%v--->%v) ", from, to)
+		err := fmt.Errorf("same vertex (%v<--->%v) ", from, to)
 		return err
 	} else {
 		// add edge bitween us

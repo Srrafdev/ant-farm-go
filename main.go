@@ -52,7 +52,6 @@ func main() {
 	println("****************************************")
 
 	bestPath := lemin.Chouse(paths, farms.NumberAnts)
-	fmt.Println(bestPath)
 	println("****************************************")
 	lemin.PrintAntMovements(bestPath, farms.NumberAnts, farms.Start, farms.End)
 }

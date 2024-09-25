@@ -3,12 +3,12 @@ package lemin
 import "fmt"
 
 func Chouse(paths [][]string, ants int) [][]string {
-	pat := beastPaths(paths[0:])
+	pat := beastPaths(paths)
 	beastRound, _ := calcRoundsAndMoves(pat, ants)
 	beastMove := 0
 
 	beastPath := pat
-	for i := 0; i < len(paths)-1; i++ {
+	for i := 0; i < len(paths); i++ {
 		pat := beastPaths(paths[i:])
 		round, moves := calcRoundsAndMoves(pat, ants)
 		if round < beastRound {
@@ -21,9 +21,9 @@ func Chouse(paths [][]string, ants int) [][]string {
 				// get beast paths
 				beastPath = pat
 			}
-		}
+		 }
 	}
-	fmt.Println(beastRound, beastMove)
+	fmt.Printf("\n\n(beast path):%v  (beast round):%v  (moves):%v\n\n",beastPath,beastRound,beastMove,)
 	return beastPath
 }
 
@@ -45,7 +45,7 @@ func calcRoundsAndMoves(paths [][]string, ants int) (int, int) {
 			if remainingAnts == 0 {
 				break
 			}
-			if i+1 < len(pathsLen) && numbAntForPath[i] + i < pathsLen[i+1]{
+			 if i+1 < len(pathsLen) && numbAntForPath[i] + i < pathsLen[i+1]{
 			numbAntForPath[i]++
 			remainingAnts--
 			}else if i+1 < len(pathsLen){
@@ -69,10 +69,19 @@ func calcRoundsAndMoves(paths [][]string, ants int) (int, int) {
 			rounds = roundsForPath
 		}
 		// calcul number of maves
-		moves += pathLen * numbAntForPath[i]
+		//moves += pathLen * numbAntForPath[i]
 	}
-
+	fmt.Printf("\n(path):%v  (round):%v  (moves):%v",paths,rounds,moves)
+	moves = calcMoves(paths,numbAntForPath)
 	return rounds, moves
+}
+
+func calcMoves(path [][]string, divAnts []int) int {
+    res := 0
+    for i, v := range path {
+        res += (len(v) - 1) * divAnts[i]
+    }
+    return res
 }
 
 func beastPaths(paths [][]string) [][]string {

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 type AntsFarm struct {
@@ -18,6 +19,14 @@ type AntsFarm struct {
 func (AF *AntsFarm) GetData(scanner *bufio.Scanner) error {
 	for scanner.Scan() {
 		line := scanner.Text()
+
+		for _, val := range line{
+			if val != '#' && !unicode.IsPrint(val){
+				fmt.Println(string(val))
+				return fmt.Errorf("character in this line: \"%v\" no printeble", line)
+			}
+		}
+
 		switch {
 		case line == "##start":
 			if !scanner.Scan() {
