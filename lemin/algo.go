@@ -1,6 +1,8 @@
 package lemin
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func Chouse(paths [][]string, ants int) [][]string {
 	pat := beastPaths(paths)
@@ -21,67 +23,60 @@ func Chouse(paths [][]string, ants int) [][]string {
 				// get beast paths
 				beastPath = pat
 			}
-		 }
+		}
 	}
-	fmt.Printf("\n\n(beast path):%v  (beast round):%v  (moves):%v\n\n",beastPath,beastRound,beastMove,)
+	fmt.Printf("\n\n(best path):%v  (best round):%v  (moves):%v\n\n", beastPath, beastRound, beastMove)
 	return beastPath
 }
 
 func calcRoundsAndMoves(paths [][]string, ants int) (int, int) {
-	if len(paths) == 1 {
-		return len(paths[0]) + ants, len(paths[0]) + ants
-	}
-	pathsLen := make([]int, len(paths))
-	for i, path := range paths {
-		pathsLen[i] = len(path) - 1
-	}
 
-	numbAntForPath := make([]int, len(pathsLen))
+	numbAntForPath := distributeDivision(paths, ants)
+	fmt.Println("         ", numbAntForPath)
 
-	remainingAnts := ants
+	rounds := (len(paths[0])-2) + numbAntForPath[0]
+	moves := calcMoves(paths, numbAntForPath)
 
-	for remainingAnts > 0 {
-		for i := range pathsLen {
-			if remainingAnts == 0 {
-				break
-			}
-			 if i+1 < len(pathsLen) && numbAntForPath[i] + i < pathsLen[i+1]{
-			numbAntForPath[i]++
-			remainingAnts--
-			}else if i+1 < len(pathsLen){
-				numbAntForPath[i+1]++
-				remainingAnts--
-			}
-
-		}
-	}
-
-	rounds := 0
-	moves := 0
-
-	for i, pathLen := range pathsLen {
-		if numbAntForPath[i] == 0 {
-			continue
-		}
-		roundsForPath := pathLen + (numbAntForPath[i] - 1)
-		// rounds = int(math.Max(float64(rounds), float64(roundsForPath)))
-		if roundsForPath > rounds {
-			rounds = roundsForPath
-		}
-		// calcul number of maves
-		//moves += pathLen * numbAntForPath[i]
-	}
-	fmt.Printf("\n(path):%v  (round):%v  (moves):%v",paths,rounds,moves)
-	moves = calcMoves(paths,numbAntForPath)
+	fmt.Printf("\n(path):%v  (round):%v  (moves):%v", paths, rounds, moves)
 	return rounds, moves
 }
 
 func calcMoves(path [][]string, divAnts []int) int {
-    res := 0
-    for i, v := range path {
-        res += (len(v) - 1) * divAnts[i]
-    }
-    return res
+	res := 0
+	for i, v := range path {
+		res += (len(v) - 1) * divAnts[i]
+	}
+	return res
+}
+
+// is not corect
+func distributeDivision(paths [][]string, total int) []int {
+	n := len(paths)
+	maxLen := 0
+
+	// Find the maximum path length
+	for _, path := range paths {
+		if n > maxLen {
+			maxLen = len(path)
+		}
+	}
+
+	result := make([]int, n)
+	remainingTotal := total
+
+	// Calculate the initial division for each path
+	for i, path := range paths {
+		difference := maxLen - len(path)
+		result[i] = difference
+		remainingTotal -= difference
+	}
+
+	// Distribute any remaining total
+	for i := 0; i < remainingTotal; i++ {
+		result[i%n]++
+	}
+
+	return result
 }
 
 func beastPaths(paths [][]string) [][]string {
@@ -119,4 +114,3 @@ func SortPaths(path [][]string) [][]string {
 	}
 	return path
 }
-

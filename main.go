@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"box/lemin"
@@ -9,9 +10,14 @@ import (
 )
 
 func main() {
+	if len(os.Args) != 2{
+		fmt.Println("ERROR: inter name file")
+		return
+	}
+	name := os.Args[1]
 	graph := &lemin.Graph{}
 
-	farms, err := box.ParseFile("example.txt")
+	farms, err := box.ParseFile("exampls/"+name)
 	if err != nil {
 		fmt.Println("ERROR: invalid data format: ", err)
 		return
