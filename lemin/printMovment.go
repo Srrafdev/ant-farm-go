@@ -14,7 +14,7 @@ type Ant struct {
 func PrintAntMovements(paths [][]string, numAnts int, start, end string) {
 	ants := make([]*Ant, numAnts)
 	for i := 0; i < numAnts; i++ {
-		ants[i] = &Ant{ID: i+1, PathIndex: i % len(paths), Position: -1}
+		ants[i] = &Ant{ID: i+1, PathIndex: i % len(paths), Position: 0}
 	}
 
 	for !allAntsFinished(paths, ants, end) {

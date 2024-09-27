@@ -15,15 +15,19 @@ func Chouse(paths [][]string, ants int) [][]string {
 		round, moves := calcRoundsAndMoves(pat, ants)
 		if round < beastRound {
 			beastRound = round
-			// get beast paths
+			// get best paths
 			beastPath = pat
 		} else if round == beastRound {
 			if moves < beastMove || beastMove == 0 {
 				beastMove = moves
-				// get beast paths
+				// get best paths
 				beastPath = pat
 			}
 		}
+		// if len(pat)<= flow{
+		// 	break
+		// }
+	
 	}
 	fmt.Printf("\n\n(best path):%v  (best round):%v  (moves):%v\n\n", beastPath, beastRound, beastMove)
 	return beastPath
