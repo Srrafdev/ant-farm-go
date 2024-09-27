@@ -333,21 +333,21 @@ func (g *Graph) DFSIterative(start, end *Vertex) [][]string {
 // [[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]
 var n int
 
-func (g *Graph) DFSS(path *[][]string, stack *[]string, start *Vertex, end string, visited map[string]bool) {
+func (g *Graph) DFSS(path *[][]string, stack []string, start *Vertex, end string, visited map[string]bool) {
 	n++
 	if n >= MAX_CAN_HUNDLE {
 		fmt.Println("this graph is soo big")
 		os.Exit(0)
 	}
 
-	*stack = append(*stack, start.key)
+	stack = append(stack, start.key)
 	visited[start.key] = true
 
 	if start.key == end {
 
-		currentPath := append([]string{}, *stack...)
+		currentPath := append([]string{}, stack...)
 		*path = append(*path, currentPath)
-		
+
 	} else {
 		for _, vert := range start.Adjacent {
 			if !visited[vert.key] {
@@ -357,6 +357,6 @@ func (g *Graph) DFSS(path *[][]string, stack *[]string, start *Vertex, end strin
 	}
 
 	// backtrack
-	*stack = (*stack)[:len(*stack)-1]
+	stack = (stack)[:len(stack)-1]
 	visited[start.key] = false
 }

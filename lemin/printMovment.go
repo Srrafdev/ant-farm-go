@@ -29,12 +29,14 @@ func PrintAntMovements(paths [][]string, numAnts int, antsPerPath []int, start, 
 
 		for _, ant := range ants {
 			if ant.Position == len(paths[ant.PathIndex])-1 {
-				continue // Ant has reached the end
+				// Ant has reached to end
+				continue 
 			}
 
 			nextRoom := paths[ant.PathIndex][ant.Position+1]
 			if nextRoom != end && occupied[nextRoom] {
-				continue // Skip if the next room is already occupied
+				// Skip if next room is already occupied
+				continue 
 			}
 
 			ant.Position++

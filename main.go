@@ -49,7 +49,7 @@ func main() {
 	 stack := []string{}
 	 visit := make(map[string]bool)
 	 //for _, s := range start.Adjacent{
-		 graph.DFSS(&paths,&stack, start, farms.End,visit)
+		 graph.DFSS(&paths,stack, start, farms.End,visit)
 	 //}
 	//graph.BFS(&paths,start,farms.End)
 	if len(paths) == 0 {
