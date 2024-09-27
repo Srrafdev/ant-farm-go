@@ -65,7 +65,9 @@ func main() {
 	}
 	println("****************************************")
 
-	bestPath := lemin.Chouse(paths, farms.NumberAnts)
+	bestPath,numbAntPath := lemin.Chouse(paths, farms.NumberAnts)
 	println("****************************************")
-	lemin.PrintAntMovements(bestPath, farms.NumberAnts, farms.Start, farms.End)
+	fmt.Println(numbAntPath)
+	//lemin.Result(bestPath,numbAntPath,farms.NumberAnts,farms.End)
+	lemin.PrintAntMovements(bestPath, farms.NumberAnts,numbAntPath, farms.Start, farms.End)
 }

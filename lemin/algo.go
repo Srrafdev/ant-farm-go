@@ -4,18 +4,20 @@ import (
 	"fmt"
 )
 
-func Chouse(paths [][]string, ants int) [][]string {
+func Chouse(paths [][]string, ants int) ([][]string, []int) {
 	pat := beastPaths(paths)
-	beastRound, _ := calcRoundsAndMoves(pat, ants)
+	beastRound, _, NAP := calcRoundsAndMoves(pat, ants)
 	beastMove := 0
 
 	beastPath := pat
+	numAntpat := NAP
 	for i := 0; i < len(paths); i++ {
 		pat := beastPaths(paths[i:])
-		round, moves := calcRoundsAndMoves(pat, ants)
+		round, moves, nap := calcRoundsAndMoves(pat, ants)
 		if round < beastRound {
 			beastRound = round
 			// get best paths
+			numAntpat = nap
 			beastPath = pat
 		} else if round == beastRound {
 			if moves < beastMove || beastMove == 0 {
@@ -27,22 +29,22 @@ func Chouse(paths [][]string, ants int) [][]string {
 		// if len(pat)<= flow{
 		// 	break
 		// }
-	
+
 	}
 	fmt.Printf("\n\n(best path):%v  (best round):%v  (moves):%v\n\n", beastPath, beastRound, beastMove)
-	return beastPath
+	return beastPath, numAntpat
 }
 
-func calcRoundsAndMoves(paths [][]string, ants int) (int, int) {
+func calcRoundsAndMoves(paths [][]string, ants int) (int, int, []int) {
 
 	numbAntForPath := distributeDivision(paths, ants)
 	fmt.Println("         ", numbAntForPath)
 
-	rounds := (len(paths[0])-2) + numbAntForPath[0]
+	rounds := (len(paths[0]) - 2) + numbAntForPath[0]
 	moves := calcMoves(paths, numbAntForPath)
 
 	fmt.Printf("\n(path):%v  (round):%v  (moves):%v", paths, rounds, moves)
-	return rounds, moves
+	return rounds, moves, numbAntForPath
 }
 
 func calcMoves(path [][]string, divAnts []int) int {
