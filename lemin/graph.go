@@ -14,7 +14,7 @@ type Vertex struct {
 	Adjacent []*Vertex
 }
 
-var MAX_CAN_HUNDLE = 10000000
+var MAX_CAN_HUNDLE = 100000000
 
 // adds an vertex to the graph [ O ]
 func (g *Graph) AddVertex(k string) error {
@@ -112,79 +112,79 @@ func Visited(stack []string, visit *Vertex) bool {
 }
 
 // ////////////////////////////// for big graph
-func (g *Graph) BFS(path *[][]string, start *Vertex, end string) {
-	// Queue stores the current path being explored
-	queue := [][]*Vertex{{start}}
-	visited := make(map[string]bool)
-
-	for len(queue) > 0 {
-		// Dequeue the first path
-		currentPath := queue[0]
-		queue = queue[1:]
-
-		// Get the last vertex in the path
-		currentVertex := currentPath[len(currentPath)-1]
-
-		// If we have reached the end vertex, save the path
-		if currentVertex.key == end {
-			var pathStr []string
-			for _, v := range currentPath {
-				pathStr = append(pathStr, v.key)
-			}
-			*path = append(*path, pathStr)
-			continue
-		}
-
-		// Mark the vertex as visited
-		visited[currentVertex.key] = true
-
-		// Explore all Adjacent vertices
-		for _, AdjacentVertex := range currentVertex.Adjacent {
-			if !visited[AdjacentVertex.key] {
-				// Create a new path extending the current path
-				newPath := append([]*Vertex{}, currentPath...)
-				newPath = append(newPath, AdjacentVertex)
-				queue = append(queue, newPath)
-			}
-		}
-	}
-}
-
-// func (g *Graph) BFS(start *Vertex, end string) [][]string {
-// 	var allPaths [][]string
-// 	queue := [][]string{{start.key}}
+// func (g *Graph) BFS(path *[][]string, start *Vertex, end string) {
+// 	// Queue stores the current path being explored
+// 	queue := [][]*Vertex{{start}}
+// 	visited := make(map[string]bool)
 
 // 	for len(queue) > 0 {
-// 		path := queue[0]
+// 		// Dequeue the first path
+// 		currentPath := queue[0]
 // 		queue = queue[1:]
-// 		lastVertex := path[len(path)-1]
 
-// 		if lastVertex == end {
-// 			allPaths = append(allPaths, path)
-// 		} else {
-// 			currentVertex := g.GetVertex(lastVertex)
-// 			for _, neighbor := range currentVertex.Adjacent {
-// 				if !containsVertex(path, neighbor.key) {
-// 					newPath := make([]string, len(path))
-// 					copy(newPath, path)
-// 					newPath = append(newPath, neighbor.key)
-// 					queue = append(queue, newPath)
-// 				}
+// 		// Get the last vertex in the path
+// 		currentVertex := currentPath[len(currentPath)-1]
+
+// 		// If we have reached the end vertex, save the path
+// 		if currentVertex.key == end {
+// 			var pathStr []string
+// 			for _, v := range currentPath {
+// 				pathStr = append(pathStr, v.key)
+// 			}
+// 			*path = append(*path, pathStr)
+// 			continue
+// 		}
+
+// 		// Mark the vertex as visited
+// 		visited[currentVertex.key] = true
+
+// 		// Explore all Adjacent vertices
+// 		for _, AdjacentVertex := range currentVertex.Adjacent {
+// 			if !visited[AdjacentVertex.key] {
+// 				// Create a new path extending the current path
+// 				newPath := append([]*Vertex{}, currentPath...)
+// 				newPath = append(newPath, AdjacentVertex)
+// 				queue = append(queue, newPath)
 // 			}
 // 		}
 // 	}
-
-// 	return allPaths
 // }
 
-// func containsVertex(path []string, key string) bool {
-// 	for _, v := range path {
-// 		if v == key {
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }
+func (g *Graph) BFS(start *Vertex, end string) [][]string {
+	var allPaths [][]string
+	queue := [][]string{{start.key}}
+
+	for len(queue) > 0 {
+		path := queue[0]
+		queue = queue[1:]
+		lastVertex := path[len(path)-1]
+
+		if lastVertex == end {
+			allPaths = append(allPaths, path)
+		} else {
+			currentVertex := g.GetVertex(lastVertex)
+			for _, neighbor := range currentVertex.Adjacent {
+				if !containsVertex(path, neighbor.key) {
+					newPath := make([]string, len(path))
+					copy(newPath, path)
+					newPath = append(newPath, neighbor.key)
+					queue = append(queue, newPath)
+				}
+			}
+		}
+	}
+
+	return allPaths
+}
+
+func containsVertex(path []string, key string) bool {
+	for _, v := range path {
+		if v == key {
+			return true
+		}
+	}
+	return false
+}
 
 // func (g *Graph) MaxFlow(start, end string) int {
 // 	startVertex := g.GetVertex(start)
@@ -357,6 +357,6 @@ func (g *Graph) DFSS(path *[][]string, stack []string, start *Vertex, end string
 	}
 
 	// backtrack
-	stack = (stack)[:len(stack)-1]
+	stack = stack[:len(stack)-1]
 	visited[start.key] = false
 }
